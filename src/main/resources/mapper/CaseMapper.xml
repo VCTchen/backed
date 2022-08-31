@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="yygh.parent.dandp.mapper.CaseMapper">
+
+
+    <select id="queryList" resultType="yygh.parent.dandp.entity.Case">
+        select c.*,su.nick_name as patientName,su.ssex as ssex ,su.birthday as birthday, u.nick_name as
+        doctorName,td.dep_name as depName
+        from `t_case` c
+        LEFT JOIN t_user su ON su.user_id = c.patients_id
+        LEFT JOIN t_user u ON u.user_id = c.doctor_id
+        LEFT JOIN t_department td ON td.id = u.dep_id
+        <where>
+            <if test="entity.doctorName != null and entity.doctorName != ''">
+                AND u.nick_name like concat('%',#{entity.doctorName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="entity.patientName != null and entity.patientName != ''">
+                AND su.nick_name like concat('%',#{entity.patientName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by c.create_time desc
+    </select>
+    <select id="queryListByPatient" resultType="yygh.parent.dandp.entity.Case">
+        select c.*,su.nick_name as patientName,su.ssex as ssex ,su.birthday as birthday, u.nick_name as
+        doctorName,td.dep_name as depName
+        from `t_case` c
+        LEFT JOIN t_user su ON su.user_id = c.patients_id
+        LEFT JOIN t_user u ON u.user_id = c.doctor_id
+        LEFT JOIN t_department td ON td.id = u.dep_id
+        <where>
+            c.patients_id = #{userId,jdbcType=INTEGER}
+            <if test="entity.doctorName != null and entity.doctorName != ''">
+                AND u.nick_name like concat('%',#{entity.doctorName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="entity.patientName != null and entity.patientName != ''">
+                AND su.nick_name like concat('%',#{entity.patientName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by c.create_time desc
+    </select>
+</mapper>

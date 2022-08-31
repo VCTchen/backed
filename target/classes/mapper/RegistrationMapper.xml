@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="yygh.parent.dandp.mapper.RegistrationMapper">
+
+    <select id="selectByNow" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM t_registration tg
+        LEFT JOIN t_user su ON su.user_id = tg.doctor_id
+        LEFT JOIN t_department td ON td.id = su.dep_id
+        WHERE TO_DAYS(tg.create_time) = TO_DAYS(NOW())
+        AND dep_id = #{depId,jdbcType=INTEGER}
+    </select>
+    <select id="queryList" resultType="yygh.parent.dandp.entity.Registration">
+        SELECT tr.*,su.nick_name as patientName,su.ssex as ssex ,su.birthday as birthday, u.nick_name as doctorName
+        FROM t_registration tr
+        LEFT JOIN t_user su ON su.user_id = tr.patients_id
+        LEFT JOIN t_user u ON u.user_id = tr.doctor_id
+        <where>
+            su.role_id = 2 AND u.role_id = 1
+            <if test="entity.number != null and entity.number != ''">
+                AND tr.number LIKE concat('%',#{entity.number,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="entity.patientName != null and entity.patientName != ''">
+                AND su.nick_name LIKE concat('%',#{entity.patientName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        ORDER BY tr.status ASC, tr.create_time DESC
+    </select>
+    <select id="queryListByDoctor" resultType="yygh.parent.dandp.entity.Registration">
+        SELECT tr.*,su.nick_name as patientName,su.ssex as ssex ,su.birthday as birthday, u.nick_name as doctorName
+        FROM t_registration tr
+        LEFT JOIN t_user su ON su.user_id = tr.patients_id
+        LEFT JOIN t_user u ON u.user_id = tr.doctor_id
+        <where>
+            su.role_id = 2 AND u.role_id = 1
+            <if test="entity.number != null and entity.number != ''">
+                AND tr.number LIKE concat('%',#{entity.number,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="entity.patientName != null and entity.patientName != ''">
+                AND su.nick_name LIKE concat('%',#{entity.patientName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="userId != null">
+                AND u.user_id = #{userId,jdbcType=INTEGER}
+            </if>
+        </where>
+        ORDER BY tr.status ASC, tr.create_time DESC
+    </select>
+    <select id="queryListByPatient" resultType="yygh.parent.dandp.entity.Registration">
+        SELECT tr.*,su.nick_name as patientName,su.ssex as ssex ,su.birthday as birthday, u.nick_name as doctorName
+        FROM t_registration tr
+        LEFT JOIN t_user su ON su.user_id = tr.patients_id
+        LEFT JOIN t_user u ON u.user_id = tr.doctor_id
+        <where>
+            su.role_id = 2 AND u.role_id = 1
+            <if test="entity.number != null and entity.number != ''">
+                AND tr.number LIKE concat('%',#{entity.number,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="entity.patientName != null and entity.patientName != ''">
+                AND su.nick_name LIKE concat('%',#{entity.patientName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="userId != null">
+                AND su.user_id = #{userId,jdbcType=INTEGER}
+            </if>
+        </where>
+        ORDER BY tr.status ASC, tr.create_time DESC
+    </select>
+</mapper>

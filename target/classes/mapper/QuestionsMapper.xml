@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="yygh.parent.dandp.mapper.QuestionsMapper">
+
+    <resultMap id="BaseResultMap" type="yygh.parent.dandp.entity.Questions">
+        <!--@mbg.generated-->
+        <!--@Table t_questions-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="patient_id" jdbcType="INTEGER" property="patientId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="ssex" jdbcType="INTEGER" property="ssex"/>
+        <result column="birthday" jdbcType="TIMESTAMP" property="birthday"/>
+        <collection property="questions" ofType="yygh.parent.dandp.entity.Questions">
+            <result column="reply" property="reply"/>
+            <result column="replyTime" property="replyTime"/>
+            <result column="replyName" property="replyName"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryList" resultMap="BaseResultMap">
+        SELECT tq.id,
+        tq.patient_id,
+        tq.title,
+        tq.create_time,
+        su.nick_name as patientName,
+        su.ssex as ssex,
+        su.birthday as birthday,
+        tqs.create_time as replyTime,
+        u.nick_name as replyName,
+        tqs.title as reply
+        FROM t_questions tq
+        LEFT JOIN t_user su ON su.user_id = tq.patient_id
+        LEFT JOIN t_questions tqs ON tqs.parent_id = tq.id
+        LEFT JOIN t_user u ON u.user_id = tqs.doctor_id
+        <where>
+            tq.parent_id is null
+            <if test="questions.patientName != null and questions.patientName != ''">
+                AND su.nick_name LIKE concat('%',#{questions.patientName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="questions.title != null and questions.title != ''">
+                AND tq.title LIKE concat('%',#{questions.title,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by tq.create_time desc,tqs.create_time desc
+    </select>
+    <select id="queryListByPatient" resultMap="BaseResultMap">
+        SELECT tq.id,
+        tq.patient_id,
+        tq.title,
+        tq.create_time,
+        su.nick_name as patientName,
+        su.ssex as ssex,
+        su.birthday as birthday,
+        tqs.create_time as replyTime,
+        u.nick_name as replyName,
+        tqs.title as reply
+        FROM t_questions tq
+        LEFT JOIN t_user su ON su.user_id = tq.patient_id
+        LEFT JOIN t_questions tqs ON tqs.parent_id = tq.id
+        LEFT JOIN t_user u ON u.user_id = tqs.doctor_id
+        <where>
+            tq.parent_id is null AND tq.patient_id = #{userId,jdbcType=INTEGER}
+            <if test="questions.patientName != null and questions.patientName != ''">
+                AND su.nick_name LIKE concat('%',#{questions.patientName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="questions.title != null and questions.title != ''">
+                AND tq.title LIKE concat('%',#{questions.title,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by tq.create_time desc,tqs.create_time desc
+    </select>
+
+</mapper>
